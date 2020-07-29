@@ -1,15 +1,18 @@
-import Cookies from 'js-cookie'
+import store from '../store/index'
 
-const TokenKey = 'vue_admin_template_token'
+export function getUser() {
+  let store_user = store.state.user.user
+  let session_user = sessionStorage.getItem('user')
 
-export function getToken() {
-  return Cookies.get(TokenKey)
-}
+  // 是否存在于 Vuex
+  if (store_user) {
+    return store_user
+  }
+  // 是否存在于 sessionStorage
+  if (session_user) {
+    store.commit('MT_UPDATE_USER', JSON.parse(session_user))
+    return JSON.parse(session_user)
+  }
 
-export function setToken(token) {
-  return Cookies.set(TokenKey, token)
-}
-
-export function removeToken() {
-  return Cookies.remove(TokenKey)
+  return null
 }

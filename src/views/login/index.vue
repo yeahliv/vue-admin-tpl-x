@@ -34,14 +34,14 @@
           name="password"
           tabindex="2"
           auto-complete="on"
-          @keyup.enter.native="handleLogin"
+          @keyup.enter.native="login"
         />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="login">Login</el-button>
 
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
@@ -105,18 +105,24 @@ export default {
         this.$refs.password.focus()
       })
     },
-    handleLogin() {
-      this.$refs.loginForm.validate(valid => {
+    async login() {
+      this.$refs.loginForm.validate(async valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
+          let { data: res } = await this.$api.user.login(this.loginForm)
+          let { code, data, success, msg } = res
+          
+          if (success) {
+            this.$message.success(msg)
+            this.$store.commit('MT_UPDATE_USER', data)
+            sessionStorage.setItem('user', JSON.stringify(data))
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
-          }).catch(() => {
+          } else {
             this.loading = false
-          })
+            this.$message.error(msg)
+          }
         } else {
-          console.log('error submit!!')
           return false
         }
       })

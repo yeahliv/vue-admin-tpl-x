@@ -52,8 +52,11 @@ export default {
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
-      await this.$store.dispatch('user/logout')
-      this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+      this.$store.commit('MT_UPDATE_USER', null)
+      sessionStorage.removeItem('user')
+      this.$store.commit('MT_UPDATE_ROUTERREADY', false)
+      this.$router.push(`/login`)
+      location.reload()
     }
   }
 }
